@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  benfoggon-site:
+    build: .
+    container_name: benfoggon-portfolio
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/usr/share/nginx/html:ro
+    networks:
+      - web
+
+networks:
+  web:
+    driver: bridge
