@@ -37,6 +37,7 @@ services:
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
       - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}
       - ALLOWED_ORIGINS=https://benfoggon.com,http://localhost:8082,https://api.benfoggon.com
+      - SPOTIFY_REDIRECT_URI=https://api.benfoggon.com/auth/callback
     networks:
       - web
     healthcheck:

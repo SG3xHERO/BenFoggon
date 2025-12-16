@@ -12,12 +12,19 @@ class SpotifyNowPlaying {
   getApiBaseUrl() {
     // Check if we're in development or production
     const hostname = window.location.hostname;
+    
     if (hostname === 'localhost' || hostname === '127.0.0.1') {
-      // In development with Docker Compose, use the API path through nginx proxy
-      return `${window.location.origin}/api`;
+      // Local development
+      return 'http://localhost:3001';
     }
-    // In production, use the /api path (handled by reverse proxy)
-    return `${window.location.origin}/api`;
+    
+    // Production - use your actual API domain configured in Nginx Proxy Manager
+    if (hostname === 'benfoggon.com' || hostname === 'www.benfoggon.com') {
+      return 'https://api.benfoggon.com';  // Your API subdomain
+    }
+    
+    // Fallback for other domains - try /api path first, then subdomain
+    return `${window.location.protocol}//api.${hostname}`;
   }
   
   async getNowPlaying() {

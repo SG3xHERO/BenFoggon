@@ -35,6 +35,172 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
+// Spotify Authorization Flow Endpoints
+const SCOPES = 'user-read-currently-playing user-read-recently-played';
+const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'https://api.benfoggon.com/auth/callback';
+
+// Step 1: Get authorization URL
+app.get('/auth/login', (req, res) => {
+  const state = Math.random().toString(36).substring(2, 15);
+  const authUrl = 'https://accounts.spotify.com/authorize?' + new URLSearchParams({
+    response_type: 'code',
+    client_id: SPOTIFY_CLIENT_ID,
+    scope: SCOPES,
+    redirect_uri: REDIRECT_URI,
+    state: state
+  });
+
+  res.json({
+    authUrl: authUrl,
+    message: 'Visit the authUrl to authorize your Spotify account',
+    redirectUri: REDIRECT_URI
+  });
+});
+
+// Step 2: Handle authorization callback and get tokens
+app.get('/auth/callback', async (req, res) => {
+  const { code, state, error } = req.query;
+
+  if (error) {
+    return res.status(400).send(`
+      <html>
+        <head><title>Spotify Authorization Error</title></head>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+          <h1 style="color: #ff0844;">❌ Authorization Failed</h1>
+          <p><strong>Error:</strong> ${error}</p>
+          <p><a href="/auth/login">Try again</a></p>
+        </body>
+      </html>
+    `);
+  }
+
+  if (!code) {
+    return res.status(400).send(`
+      <html>
+        <head><title>Missing Authorization Code</title></head>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+          <h1 style="color: #ff0844;">❌ No Authorization Code</h1>
+          <p>No authorization code received from Spotify.</p>
+          <p><a href="/auth/login">Try again</a></p>
+        </body>
+      </html>
+    `);
+  }
+
+  try {
+    // Exchange code for tokens
+    const response = await axios.post('https://accounts.spotify.com/api/token', 
+      new URLSearchParams({
+        grant_type: 'authorization_code',
+        code: code,
+        redirect_uri: REDIRECT_URI
+      }),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'Authorization': `Basic ${Buffer.from(`${SPOTIFY_CLIENT_ID}:${SPOTIFY_CLIENT_SECRET}`).toString('base64')}`
+        }
+      }
+    );
+
+    const { access_token, refresh_token, expires_in } = response.data;
+
+    // Update our cached token
+    accessTokenCache = {
+      token: access_token,
+      expires_at: Date.now() + (expires_in * 1000) - 60000
+    };
+
+    // Send success page with tokens
+    res.send(`
+      <html>
+        <head><title>Spotify Authorization Success</title></head>
+        <body style="font-family: Arial, sans-serif; max-width: 800px; margin: 50px auto; padding: 20px; background: #191414; color: white;">
+          <h1 style="color: #1db954;">🎵 Spotify Authorization Successful!</h1>
+          
+          <div style="background: #282828; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>✅ Your Refresh Token:</h3>
+            <div style="background: #000; padding: 15px; border-radius: 4px; font-family: monospace; word-break: break-all; margin: 10px 0;">
+              ${refresh_token}
+            </div>
+            <button onclick="copyToClipboard('${refresh_token}')" style="background: #1db954; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
+              📋 Copy Refresh Token
+            </button>
+          </div>
+
+          <div style="background: #282828; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>🔧 Add this to your Portainer environment variables:</h3>
+            <div style="background: #000; padding: 15px; border-radius: 4px; font-family: monospace;">
+SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}<br>
+SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}<br>
+SPOTIFY_REFRESH_TOKEN=${refresh_token}
+            </div>
+            <button onclick="copyToClipboard('SPOTIFY_CLIENT_ID=${SPOTIFY_CLIENT_ID}\\nSPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}\\nSPOTIFY_REFRESH_TOKEN=${refresh_token}')" style="background: #1db954; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; margin-top: 10px;">
+              📋 Copy All Environment Variables
+            </button>
+          </div>
+
+          <div style="background: #282828; padding: 20px; border-radius: 8px; margin: 20px 0;">
+            <h3>📱 Test your setup:</h3>
+            <p><a href="/spotify/now-playing" style="color: #1db954;">Test Now Playing endpoint</a></p>
+            <p><a href="/health" style="color: #1db954;">Check API health</a></p>
+          </div>
+
+          <p style="color: #b3b3b3;"><strong>Important:</strong> Keep this refresh token secure! It never expires unless you revoke access.</p>
+
+          <script>
+            function copyToClipboard(text) {
+              navigator.clipboard.writeText(text).then(() => {
+                event.target.textContent = '✅ Copied!';
+                setTimeout(() => {
+                  event.target.textContent = '📋 Copy Refresh Token';
+                }, 2000);
+              }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = text;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                event.target.textContent = '✅ Copied!';
+                setTimeout(() => {
+                  event.target.textContent = '📋 Copy Refresh Token';
+                }, 2000);
+              });
+            }
+          </script>
+        </body>
+      </html>
+    `);
+
+  } catch (error) {
+    console.error('Token exchange error:', error.response?.data || error.message);
+    res.status(500).send(`
+      <html>
+        <head><title>Token Exchange Error</title></head>
+        <body style="font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px;">
+          <h1 style="color: #ff0844;">❌ Token Exchange Failed</h1>
+          <p><strong>Error:</strong> ${error.response?.data?.error_description || error.message}</p>
+          <p><a href="/auth/login">Try again</a></p>
+        </body>
+      </html>
+    `);
+  }
+});
+
+// Get current authorization status
+app.get('/auth/status', (req, res) => {
+  const hasValidToken = accessTokenCache.token && accessTokenCache.expires_at > Date.now();
+  res.json({
+    hasValidToken,
+    tokenExpiresAt: accessTokenCache.expires_at ? new Date(accessTokenCache.expires_at).toISOString() : null,
+    hasRefreshToken: !!SPOTIFY_REFRESH_TOKEN,
+    clientIdConfigured: !!SPOTIFY_CLIENT_ID,
+    redirectUri: REDIRECT_URI
+  });
+});
+
 // Spotify configuration
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
