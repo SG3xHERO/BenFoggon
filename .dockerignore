@@ -4,6 +4,44 @@
 README.md
 docker-compose.yml
 Dockerfile
+# Frontend .dockerignore for Docker builds
+node_modules/
+.git/
+.gitignore
+README.md
+SETUP.md
 .dockerignore
+.env*
+*.log
+.DS_Store
+api/
+setup.sh
+setup.bat
+portainer-stack.yml
+*.md
+
+# Node.js dependencies (if any frontend deps)
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary folders
+tmp/
+temp/
 .DS_Store
 Thumbs.db

@@ -1,3 +1,6 @@
+# Portainer Stack for Ben Foggon Portfolio
+# Use this in Portainer instead of docker-compose.yml
+
 version: '3.8'
 
 services:
@@ -12,12 +15,8 @@ services:
       - "8082:80"
     depends_on:
       - benfoggon-api
-    networks:
-      - web
     environment:
       - API_URL=http://benfoggon-api:3001
-    labels:
-      - "traefik.enable=false"  # Disable if using Traefik
 
   # Backend - Spotify API server
   benfoggon-api:
@@ -27,9 +26,9 @@ services:
     container_name: benfoggon-api
     restart: unless-stopped
     expose:
-      - "3001"  # Expose port internally for Nginx Proxy Manager
+      - "3001"
     ports:
-      - "3001:3001"  # Also expose externally for direct access if needed
+      - "3001:3001"
     environment:
       - NODE_ENV=production
       - PORT=3001
@@ -37,35 +36,14 @@ services:
       - SPOTIFY_CLIENT_SECRET=${SPOTIFY_CLIENT_SECRET}
       - SPOTIFY_REFRESH_TOKEN=${SPOTIFY_REFRESH_TOKEN}
       - ALLOWED_ORIGINS=https://benfoggon.com,http://localhost:8082,https://api.benfoggon.com
-    networks:
-      - web
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health", "||" , "exit", "1"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
-    labels:
-      - "traefik.enable=false"  # Disable if using Traefik
 
-  # Reverse proxy (optional - for production with custom domains)
-  nginx-proxy:
-    image: nginx:alpine
-    container_name: benfoggon-proxy
-    restart: unless-stopped
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx-proxy.conf:/etc/nginx/conf.d/default.conf:ro
-    depends_on:
-      - benfoggon-site
-      - benfoggon-api
-    networks:
-      - web
-    profiles:
-      - production
-
-networks:
-  web:
-    driver: bridge
+# Note: When using Nginx Proxy Manager, you don't need the nginx-proxy service
+# Configure your domains in Nginx Proxy Manager UI:
+# - Frontend: benfoggon.com -> benfoggon-portfolio:80
+# - API: api.benfoggon.com -> benfoggon-api:3001
