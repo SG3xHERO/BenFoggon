@@ -204,8 +204,33 @@ app.get('/auth/status', (req, res) => {
     tokenExpiresAt: accessTokenCache.expires_at ? new Date(accessTokenCache.expires_at).toISOString() : null,
     hasRefreshToken: !!SPOTIFY_REFRESH_TOKEN,
     clientIdConfigured: !!SPOTIFY_CLIENT_ID,
-    redirectUri: REDIRECT_URI
+    clientSecretConfigured: !!SPOTIFY_CLIENT_SECRET,
+    redirectUri: REDIRECT_URI,
+    refreshTokenLength: SPOTIFY_REFRESH_TOKEN ? SPOTIFY_REFRESH_TOKEN.length : 0
   });
+});
+
+// Debug endpoint to test token refresh
+app.get('/auth/test-refresh', async (req, res) => {
+  try {
+    if (!SPOTIFY_REFRESH_TOKEN) {
+      return res.status(400).json({ error: 'No refresh token configured' });
+    }
+
+    const token = await getAccessToken();
+    res.json({ 
+      success: true, 
+      message: 'Refresh token works!',
+      tokenLength: token.length,
+      expiresAt: accessTokenCache.expires_at ? new Date(accessTokenCache.expires_at).toISOString() : null
+    });
+  } catch (error) {
+    res.status(500).json({ 
+      error: 'Refresh token failed',
+      details: error.message,
+      response: error.response?.data
+    });
+  }
 });
 
 // Spotify configuration
@@ -310,7 +335,22 @@ app.get('/spotify/now-playing', async (req, res) => {
 
     res.json(formattedResponse);
   } catch (error) {
-    console.error('Error fetching now playing:', error.response?.status, error.response?.data || error.message);
+    console.error('Error fetching now playing:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+      hasRefreshToken: !!SPOTIFY_REFRESH_TOKEN,
+      hasClientCredentials: !!(SPOTIFY_CLIENT_ID && SPOTIFY_CLIENT_SECRET)
+    });
+    
+    if (error.message.includes('No refresh token available')) {
+      return res.status(400).json({ 
+        error: 'No refresh token configured',
+        message: 'Visit /auth/login to get a refresh token',
+        authUrl: '/auth/login'
+      });
+    }
     
     if (error.response?.status === 401) {
       // Token expired, try to refresh
@@ -342,13 +382,20 @@ app.get('/spotify/now-playing', async (req, res) => {
         
         return res.json(formattedResponse);
       } catch (retryError) {
-        console.error('Retry failed:', retryError);
-        return res.status(500).json({ error: 'Unable to fetch song' });
+        console.error('Retry failed:', retryError.response?.data || retryError.message);
+        return res.status(500).json({ 
+          error: 'Token refresh failed',
+          details: retryError.response?.data || retryError.message
+        });
       }
     } else if (error.response?.status === 204) {
       res.json({ error: 'Currently not playing', isPlaying: false });
     } else {
-      res.status(500).json({ error: 'Unable to fetch song' });
+      res.status(500).json({ 
+        error: 'Unable to fetch song',
+        status: error.response?.status,
+        details: error.response?.data || error.message
+      });
     }
   }
 });
