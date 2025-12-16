@@ -1041,6 +1041,25 @@ section {
 .project-footer {
   padding-top: var(--space-4);
   border-top: 1px solid var(--color-border);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.project-footer .btn {
+  width: 100%;
+  text-align: center;
+  justify-content: center;
+}
+
+@media (min-width: 768px) {
+  .project-footer {
+    justify-content: flex-start;
+  }
+  
+  .project-footer .btn {
+    width: auto;
+  }
 }
 
 /* Contact Section */
