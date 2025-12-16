@@ -2,64 +2,64 @@
 class SpotifyNowPlaying {
   constructor() {
     this.playerElement = document.querySelector('.music-player');
-    this.refreshToken = 'AQA3nJdNJCvZKIte01ri0J4Koz9ZX52wbgV8CrAMMISxWq30n4Hj-ojwkTO45tvRJv1cJfWpO5rWY5vhkwBsjrwVrG6bST5mv6OkxDx-dirA1MCZOUPe-uZ_lkD6Q6kWjMQ';
-    this.refreshEndpoint = 'https://spotify.benfoggon.com/auth/refresh'; // Use your auth server instead
-    this.nowPlayingEndpoint = 'https://api.spotify.com/v1/me/player/currently-playing';
+    // Determine API base URL based on environment
+    this.apiBaseUrl = this.getApiBaseUrl();
     this.updateInterval = null;
+    this.retryCount = 0;
+    this.maxRetries = 3;
   }
-  
-  async getAccessToken() {
-    const response = await fetch(this.refreshEndpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        refresh_token: this.refreshToken
-      }),
-    });
-    
-    return response.json();
+
+  getApiBaseUrl() {
+    // Check if we're in development or production
+    const hostname = window.location.hostname;
+    if (hostname === 'localhost' || hostname === '127.0.0.1') {
+      // In development with Docker Compose, use the API path through nginx proxy
+      return `${window.location.origin}/api`;
+    }
+    // In production, use the /api path (handled by reverse proxy)
+    return `${window.location.origin}/api`;
   }
   
   async getNowPlaying() {
     try {
-      const { access_token } = await this.getAccessToken();
-      
-      const response = await fetch(this.nowPlayingEndpoint, {
+      const response = await fetch(`${this.apiBaseUrl}/spotify/now-playing`, {
+        method: 'GET',
         headers: {
-          'Authorization': `Bearer ${access_token}`,
+          'Content-Type': 'application/json',
         },
+        // Add timeout
+        signal: AbortSignal.timeout(10000) // 10 second timeout
       });
       
-      if (response.status > 400) {
-        throw new Error('Unable to fetch song');
-      } else if(response.status === 204) { 
-        throw new Error('Currently not playing');
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
       }
       
-      const song = await response.json();
-      const albumImageUrl = song.item.album.images[0].url;
-      const artist = song.item.artists.map(artist => artist.name).join(', ');
-      const isPlaying = song.is_playing;
-      const songUrl = song.item.external_urls.spotify;
-      const title = song.item.name;
-      const timePlayed = song.progress_ms;
-      const timeTotal = song.item.duration_ms;
-      const artistUrl = song.item.artists[0].external_urls.spotify;
+      const data = await response.json();
       
-      return {
-        albumImageUrl,
-        artist,
-        isPlaying,
-        songUrl,
-        title,
-        timePlayed,
-        timeTotal,
-        artistUrl
-      };
+      // Check if there's an error in the response
+      if (data.error) {
+        throw new Error(data.error);
+      }
+      
+      // Reset retry count on success
+      this.retryCount = 0;
+      
+      return data;
     } catch (error) {
       console.error('Error fetching currently playing song:', error);
+      
+      // Increment retry count
+      this.retryCount++;
+      
+      // If it's a network error and we haven't exceeded max retries
+      if (this.retryCount <= this.maxRetries && (error.name === 'AbortError' || error.message.includes('fetch'))) {
+        console.log(`Retrying... Attempt ${this.retryCount}/${this.maxRetries}`);
+        // Wait a bit before retrying (exponential backoff)
+        await new Promise(resolve => setTimeout(resolve, Math.pow(2, this.retryCount) * 1000));
+        return this.getNowPlaying();
+      }
+      
       return { error: error.message };
     }
   }
@@ -93,7 +93,7 @@ class SpotifyNowPlaying {
               <line x1="12" y1="8" x2="12" y2="12"></line>
               <line x1="12" y1="16" x2="12.01" y2="16"></line>
             </svg>
-            <span>Unable to connect to Spotify</span>
+            <span>Unable to connect to Spotify${this.retryCount > 0 ? ` (Retried ${this.retryCount}x)` : ''}</span>
           </div>
         `;
       }
