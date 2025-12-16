@@ -228,7 +228,10 @@ app.get('/auth/test-refresh', async (req, res) => {
     res.status(500).json({ 
       error: 'Refresh token failed',
       details: error.message,
-      response: error.response?.data
+      spotifyError: error.response?.data,
+      status: error.response?.status,
+      refreshTokenConfigured: !!SPOTIFY_REFRESH_TOKEN,
+      clientCredentialsConfigured: !!(SPOTIFY_CLIENT_ID && SPOTIFY_CLIENT_SECRET)
     });
   }
 });
@@ -288,8 +291,18 @@ async function getAccessToken() {
 
     return access_token;
   } catch (error) {
-    console.error('Error refreshing Spotify token:', error.response?.data || error.message);
-    throw new Error('Failed to refresh Spotify token');
+    console.error('Error refreshing Spotify token:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+      refreshTokenLength: SPOTIFY_REFRESH_TOKEN?.length,
+      clientIdLength: SPOTIFY_CLIENT_ID?.length,
+      hasClientSecret: !!SPOTIFY_CLIENT_SECRET
+    });
+    
+    const errorDetail = error.response?.data || error.message;
+    throw new Error(`Failed to refresh Spotify token: ${JSON.stringify(errorDetail)}`);
   }
 }
 
