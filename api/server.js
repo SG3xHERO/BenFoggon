@@ -41,6 +41,13 @@ const REDIRECT_URI = process.env.SPOTIFY_REDIRECT_URI || 'https://api.benfoggon.
 
 // Step 1: Get authorization URL
 app.get('/auth/login', (req, res) => {
+  if (!SPOTIFY_CLIENT_ID) {
+    return res.status(400).json({
+      error: 'Spotify Client ID not configured',
+      message: 'Add SPOTIFY_CLIENT_ID to environment variables'
+    });
+  }
+
   const state = Math.random().toString(36).substring(2, 15);
   const authUrl = 'https://accounts.spotify.com/authorize?' + new URLSearchParams({
     response_type: 'code',
@@ -206,9 +213,13 @@ const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const SPOTIFY_REFRESH_TOKEN = process.env.SPOTIFY_REFRESH_TOKEN;
 
-if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET || !SPOTIFY_REFRESH_TOKEN) {
-  console.error('Missing required Spotify environment variables');
-  process.exit(1);
+if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
+  console.warn('⚠️  Spotify Client ID or Secret missing - some endpoints will not work');
+  console.warn('Add SPOTIFY_CLIENT_ID and SPOTIFY_CLIENT_SECRET to environment variables');
+}
+
+if (!SPOTIFY_REFRESH_TOKEN) {
+  console.warn('⚠️  Spotify Refresh Token missing - use /auth/login to get one');
 }
 
 // In-memory token storage (in production, use Redis or database)
@@ -219,6 +230,10 @@ let accessTokenCache = {
 
 // Function to get access token
 async function getAccessToken() {
+  if (!SPOTIFY_REFRESH_TOKEN) {
+    throw new Error('No refresh token available - visit /auth/login to get one');
+  }
+
   // Check if we have a valid cached token
   if (accessTokenCache.token && accessTokenCache.expires_at > Date.now()) {
     return accessTokenCache.token;
