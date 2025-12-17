@@ -1,0 +1,39 @@
+# Ben Foggon - robots.txt
+# https://benfoggon.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow admin and private areas (if any exist in future)
+Disallow: /admin/
+Disallow: /private/
+Disallow: /temp/
+
+# Allow all crawlers to access main content
+Allow: /index.html
+Allow: /assets/
+Allow: /styles/
+Allow: /scripts/
+
+# Sitemap location
+Sitemap: https://benfoggon.com/sitemap.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 1
+
+# Specific rules for major search engines
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: Slurp
+Allow: /
+
+# Block bad bots (optional - add known bad bots here)
+User-agent: AhrefsBot
+Crawl-delay: 10
+
+User-agent: SemrushBot
+Crawl-delay: 10

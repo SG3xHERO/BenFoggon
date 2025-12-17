@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-FG7J3TYJRT"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-FG7J3TYJRT');
+</script>
+
   <!-- Essential Meta Tags -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,10 +21,31 @@
   <meta name="description" content="Ben Foggon - Developer, Networker & IT Technician from Yeovil, UK. Specializing in web design, networking, system administration, and building online platforms.">
   <meta name="keywords" content="Ben Foggon, developer, IT technician, networker, web design, Yeovil, UK, photography, Project Networks">
   <meta name="author" content="Ben Foggon">
-  <meta name="robots" content="index, follow">
+  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  
+  <!-- Additional SEO Meta Tags -->
+  <meta name="language" content="English">
+  <meta name="revisit-after" content="7 days">
+  <meta name="rating" content="general">
+  <meta name="distribution" content="global">
+  <meta name="theme-color" content="#6366f1">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Ben Foggon">
+  <meta name="format-detection" content="telephone=no">
+  
+  <!-- Geographic Tags -->
+  <meta name="geo.region" content="GB-SOM">
+  <meta name="geo.placename" content="Yeovil">
+  <meta name="geo.position" content="50.9451;-2.6325">
+  <meta name="ICBM" content="50.9451, -2.6325">
   
   <!-- Canonical URL -->
   <link rel="canonical" href="https://benfoggon.com/">
+  
+  <!-- Alternate Languages -->
+  <link rel="alternate" hreflang="en-gb" href="https://benfoggon.com/">
+  <link rel="alternate" hreflang="x-default" href="https://benfoggon.com/">
   
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website">
@@ -22,6 +53,8 @@
   <meta property="og:title" content="Ben Foggon | Developer & Technician">
   <meta property="og:description" content="Developer, Networker & IT Technician from Yeovil, UK. Building servers, applications, and online platforms.">
   <meta property="og:image" content="https://benfoggon.com/assets/images/og-image.jpg">
+  <meta property="og:site_name" content="Ben Foggon">
+  <meta property="og:locale" content="en_GB">
   
   <!-- Twitter Card -->
   <meta name="twitter:card" content="summary_large_image">
@@ -30,8 +63,15 @@
   <meta name="twitter:description" content="Developer, Networker & IT Technician from Yeovil, UK.">
   <meta name="twitter:image" content="https://benfoggon.com/assets/images/og-image.jpg">
   
-  <!-- Favicon -->
+  <!-- Favicon - Enhanced for SEO -->
   <link rel="icon" type="image/x-icon" href="./assets/me.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/apple-touch-icon.png">
+  <link rel="manifest" href="./assets/site.webmanifest">
+  
+  <!-- Sitemap -->
+  <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml">
   
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -50,15 +90,85 @@
     "url": "https://benfoggon.com",
     "jobTitle": "IT Technician & Developer",
     "description": "Developer, Networker & IT Technician specializing in web design and system administration",
+    "image": "https://benfoggon.com/assets/images/og-image.jpg",
     "address": {
       "@type": "PostalAddress",
       "addressLocality": "Yeovil",
+      "addressRegion": "Somerset",
       "addressCountry": "GB"
     },
     "sameAs": [
       "https://github.com/SG3xHERO",
       "https://photos.benfoggon.com",
-      "https://projectnetworks.co.uk"
+      "https://projectnetworks.co.uk",
+      "https://mot.projectnetworks.co.uk"
+    ],
+    "knowsAbout": [
+      "Web Development",
+      "Networking",
+      "System Administration",
+      "Server Management",
+      "Photography"
+    ],
+    "contactPoint": {
+      "@type": "ContactPoint",
+      "contactType": "Professional",
+      "email": "contact@benfoggon.com"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "Ben Foggon",
+    "url": "https://benfoggon.com",
+    "description": "Personal portfolio and professional website of Ben Foggon, IT Technician and Developer",
+    "author": {
+      "@type": "Person",
+      "name": "Ben Foggon"
+    },
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://benfoggon.com/search?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://benfoggon.com/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "About",
+        "item": "https://benfoggon.com/#about"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Projects",
+        "item": "https://benfoggon.com/#projects"
+      },
+      {
+        "@type": "ListItem",
+        "position": 4,
+        "name": "Contact",
+        "item": "https://benfoggon.com/#contact"
+      }
     ]
   }
   </script>
