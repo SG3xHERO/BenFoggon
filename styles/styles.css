@@ -1,4 +1,4 @@
-/* =====================================================
+﻿/* =====================================================
    Ben Foggon Portfolio — Dark Glassmorphism Redesign
    Same design system as Project Networks · Anime.js · 2026
    ===================================================== */
@@ -16,19 +16,19 @@
   --c-border-hover: rgba(255,255,255,0.14);
 
   /* Primary */
-  --c-purple:       #a855f7;
-  --c-purple-light: #c084fc;
-  --c-purple-dark:  #7c3aed;
-  --c-blue:         #3b82f6;
-  --c-blue-light:   #60a5fa;
-  --c-cyan:         #06b6d4;
+  --c-purple:       #ef4444;
+  --c-purple-light: #f87171;
+  --c-purple-dark:  #dc2626;
+  --c-blue:         #f97316;
+  --c-blue-light:   #fb923c;
+  --c-cyan:         #fb923c;
   --c-green:        #10b981;
   --c-amber:        #f59e0b;
 
   /* Gradients */
-  --g-primary:   linear-gradient(135deg, #a855f7, #3b82f6);
-  --g-primary-r: linear-gradient(135deg, #3b82f6, #a855f7);
-  --g-glow:      linear-gradient(135deg, rgba(168,85,247,0.15), rgba(59,130,246,0.15));
+  --g-primary:   linear-gradient(135deg, #ef4444, #f97316);
+  --g-primary-r: linear-gradient(135deg, #f97316, #ef4444);
+  --g-glow:      linear-gradient(135deg, rgba(239,68,68,0.15), rgba(249,115,22,0.15));
   --g-card:      linear-gradient(145deg, rgba(255,255,255,0.04), rgba(255,255,255,0.01));
 
   /* Text */
@@ -53,8 +53,8 @@
 
   /* Shadows */
   --shadow-card:         0 8px 32px rgba(0,0,0,0.4);
-  --shadow-glow-purple:  0 0 40px rgba(168,85,247,0.25);
-  --shadow-glow-blue:    0 0 40px rgba(59,130,246,0.25);
+  --shadow-glow-purple:  0 0 40px rgba(239,68,68,0.25);
+  --shadow-glow-blue:    0 0 40px rgba(249,115,22,0.25);
 
   /* Transitions */
   --ease:     cubic-bezier(0.4, 0, 0.2, 1);
@@ -129,9 +129,9 @@ button { font-family: inherit; cursor: pointer; border: none; background: none; 
   opacity: 0;
 }
 
-.orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, #a855f7 0%, transparent 70%); top: -250px; right: -200px; }
-.orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, #3b82f6 0%, transparent 70%); bottom: -200px; left: -150px; }
-.orb-3 { width: 500px; height: 500px; background: radial-gradient(circle, #06b6d4 0%, transparent 70%); top: 40%; left: 40%; transform: translate(-50%,-50%); }
+.orb-1 { width: 700px; height: 700px; background: radial-gradient(circle, #ef4444 0%, transparent 70%); top: -250px; right: -200px; }
+.orb-2 { width: 600px; height: 600px; background: radial-gradient(circle, #f97316 0%, transparent 70%); bottom: -200px; left: -150px; }
+.orb-3 { width: 500px; height: 500px; background: radial-gradient(circle, #fb923c 0%, transparent 70%); top: 40%; left: 40%; transform: translate(-50%,-50%); }
 
 /* =====================================================
    4. PRELOADER
@@ -285,15 +285,93 @@ section { position: relative; }
   font-size: 0.6875rem;
   font-weight: 600;
   padding: 2px 8px;
-  background: rgba(168,85,247,0.15);
-  border: 1px solid rgba(168,85,247,0.3);
+  background: rgba(239,68,68,0.15);
+  border: 1px solid rgba(239,68,68,0.3);
   border-radius: var(--r-full);
   color: var(--c-purple-light);
   letter-spacing: 0.05em;
   text-transform: uppercase;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  user-select: none;
 }
 
-.nav-links {
+.dropdown-arrow {
+  transition: transform 0.25s ease;
+  flex-shrink: 0;
+}
+
+/* ---- Site Switcher Dropdown ---- */
+.site-dropdown {
+  position: absolute;
+  top: calc(var(--nav-h) - 8px);
+  left: var(--space-5);
+  min-width: 260px;
+  background: rgba(14,14,28,0.95);
+  border: 1px solid rgba(239,68,68,0.18);
+  border-radius: var(--r-lg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px rgba(239,68,68,0.08);
+  padding: var(--space-2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-8px);
+  transition: opacity 0.22s ease, visibility 0.22s ease, transform 0.22s ease;
+  z-index: 1100;
+}
+
+.site-dropdown.active {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.site-dropdown .dropdown-item {
+  display: block;
+  padding: var(--space-3) var(--space-3);
+  border-radius: var(--r-md);
+  text-decoration: none;
+  color: var(--t-primary);
+  transition: background var(--t-fast);
+}
+
+.site-dropdown .dropdown-item:hover { background: rgba(239,68,68,0.08); }
+
+.site-dropdown .dropdown-item-content {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.site-dropdown .dropdown-icon {
+  width: 38px; height: 38px;
+  border-radius: var(--r-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.site-dropdown .drop-photo-icon {
+  background: rgba(239,68,68,0.15);
+  color: var(--c-purple);
+  border: 1px solid rgba(239,68,68,0.25);
+}
+
+.site-dropdown .drop-network-icon {
+  background: rgba(249,115,22,0.15);
+  color: var(--c-blue);
+  border: 1px solid rgba(249,115,22,0.25);
+}
+
+.site-dropdown .dropdown-text { display: flex; flex-direction: column; gap: 2px; }
+.site-dropdown .dropdown-title { font-size: 0.9rem; font-weight: 600; color: var(--t-primary); }
+.site-dropdown .dropdown-description { font-size: 0.75rem; color: var(--t-subtle); }
+
+
   display: flex;
   align-items: center;
   gap: var(--space-6);
@@ -367,19 +445,19 @@ section { position: relative; }
   background: var(--g-primary);
   color: #fff;
   border: none;
-  box-shadow: 0 4px 15px rgba(168,85,247,0.3);
+  box-shadow: 0 4px 15px rgba(239,68,68,0.3);
 }
-.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(168,85,247,0.4); color: #fff; }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(239,68,68,0.4); color: #fff; }
 
-.btn-glow { box-shadow: 0 0 20px rgba(168,85,247,0.4), 0 4px 15px rgba(168,85,247,0.3); }
-.btn-glow:hover { box-shadow: 0 0 30px rgba(168,85,247,0.6), 0 8px 25px rgba(168,85,247,0.4); }
+.btn-glow { box-shadow: 0 0 20px rgba(239,68,68,0.4), 0 4px 15px rgba(239,68,68,0.3); }
+.btn-glow:hover { box-shadow: 0 0 30px rgba(239,68,68,0.6), 0 8px 25px rgba(239,68,68,0.4); }
 
 .btn-ghost {
   background: transparent;
   color: var(--t-muted);
   border: 1px solid var(--c-border-hover);
 }
-.btn-ghost:hover { color: var(--t-primary); border-color: rgba(168,85,247,0.4); background: rgba(168,85,247,0.08); }
+.btn-ghost:hover { color: var(--t-primary); border-color: rgba(239,68,68,0.4); background: rgba(239,68,68,0.08); }
 
 .btn-spotify {
   background: rgba(30,215,96,0.1);
@@ -461,8 +539,8 @@ section { position: relative; }
   align-items: center;
   gap: var(--space-2);
   padding: 6px 16px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.25);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.25);
   border-radius: var(--r-full);
   font-size: 0.8125rem;
   font-weight: 500;
@@ -624,14 +702,14 @@ section { position: relative; }
 }
 
 .feature-item:hover {
-  border-color: rgba(168,85,247,0.25);
-  background: rgba(168,85,247,0.04);
+  border-color: rgba(239,68,68,0.25);
+  background: rgba(239,68,68,0.04);
 }
 
 .feature-icon {
   width: 40px; height: 40px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.2);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
   border-radius: var(--r-md);
   display: flex;
   align-items: center;
@@ -664,12 +742,15 @@ section { position: relative; }
 
 /* Spotify / Music Card */
 .music-player-card {
-  background: linear-gradient(145deg, rgba(30,215,96,0.06), rgba(168,85,247,0.04));
+  background: linear-gradient(145deg, rgba(30,215,96,0.06), rgba(239,68,68,0.04));
   border: 1px solid rgba(30,215,96,0.15);
   border-radius: var(--r-2xl);
   padding: var(--space-6);
   backdrop-filter: blur(10px);
 }
+
+/* Hide large Spotify logo once a song is playing */
+.spotify-now-playing.playing .spotify-logo { display: none; }
 
 .music-card-header {
   display: flex;
@@ -709,7 +790,7 @@ section { position: relative; }
 }
 
 .pcard:hover {
-  border-color: rgba(168,85,247,0.25);
+  border-color: rgba(239,68,68,0.25);
   box-shadow: var(--shadow-card), var(--shadow-glow-purple);
   transform: translateY(-4px);
 }
@@ -786,8 +867,8 @@ section { position: relative; }
   font-size: 0.75rem;
   font-weight: 500;
   padding: 3px 10px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.2);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
   border-radius: var(--r-full);
   color: var(--c-purple-light);
 }
@@ -825,14 +906,14 @@ section { position: relative; }
 }
 
 .contact-card:hover {
-  border-color: rgba(168,85,247,0.25);
+  border-color: rgba(239,68,68,0.25);
   box-shadow: var(--shadow-card), var(--shadow-glow-purple);
 }
 
 .contact-icon {
   width: 64px; height: 64px;
-  background: rgba(168,85,247,0.1);
-  border: 1px solid rgba(168,85,247,0.2);
+  background: rgba(239,68,68,0.1);
+  border: 1px solid rgba(239,68,68,0.2);
   border-radius: var(--r-xl);
   display: flex;
   align-items: center;
@@ -867,7 +948,7 @@ section { position: relative; }
    ===================================================== */
 .cta-section {
   padding: var(--space-16) 0;
-  background: radial-gradient(ellipse at center, rgba(168,85,247,0.08) 0%, transparent 70%);
+  background: radial-gradient(ellipse at center, rgba(239,68,68,0.08) 0%, transparent 70%);
 }
 
 .cta-inner {
@@ -996,7 +1077,7 @@ section { position: relative; }
   align-items: center;
   justify-content: center;
   color: #fff;
-  box-shadow: 0 4px 20px rgba(168,85,247,0.4);
+  box-shadow: 0 4px 20px rgba(239,68,68,0.4);
   transition: all var(--t-base);
   opacity: 0;
   transform: translateY(10px);
@@ -1005,7 +1086,7 @@ section { position: relative; }
 }
 
 .back-to-top.visible { opacity: 1; transform: translateY(0); pointer-events: auto; }
-.back-to-top:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(168,85,247,0.5); }
+.back-to-top:hover { transform: translateY(-3px); box-shadow: 0 8px 30px rgba(239,68,68,0.5); }
 
 /* =====================================================
    16. RESPONSIVE

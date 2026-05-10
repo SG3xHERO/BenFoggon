@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Ben Foggon Portfolio — Anime.js Powered Interactions
  * Canvas particles · Preloader · Hero · Scroll reveals · Nav
  * Same design system as Project Networks
@@ -69,7 +69,7 @@
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(168, 85, 247, ' + p.alpha + ')';
+        ctx.fillStyle = 'rgba(239, 68, 68, ' + p.alpha + ')';
         ctx.fill();
 
         for (var j = i + 1; j < particles.length; j++) {
@@ -82,7 +82,7 @@
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = 'rgba(168, 85, 247, ' + strength + ')';
+            ctx.strokeStyle = 'rgba(239, 68, 68, ' + strength + ')';
             ctx.lineWidth = 1;
             ctx.stroke();
           }
@@ -214,6 +214,32 @@
     var nav    = document.getElementById('main-nav');
     var toggle = document.getElementById('nav-toggle');
     var links  = document.getElementById('nav-links');
+
+    /* Site switcher dropdown */
+    var dropTrigger = document.getElementById('site-dropdown-trigger');
+    var dropdown    = document.getElementById('site-dropdown');
+    var dropTimer;
+
+    function openDrop()  { if (dropdown) dropdown.classList.add('active'); }
+    function closeDrop() { if (dropdown) dropdown.classList.remove('active'); }
+
+    if (dropTrigger && dropdown) {
+      dropTrigger.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        dropdown.classList.toggle('active');
+      });
+      var logoEl = dropTrigger.closest('.logo');
+      if (logoEl) {
+        logoEl.addEventListener('mouseenter', function () { clearTimeout(dropTimer); openDrop(); });
+        logoEl.addEventListener('mouseleave', function () { dropTimer = setTimeout(closeDrop, 200); });
+      }
+      dropdown.addEventListener('mouseenter', function () { clearTimeout(dropTimer); });
+      dropdown.addEventListener('mouseleave', function () { dropTimer = setTimeout(closeDrop, 200); });
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.logo') && !e.target.closest('.site-dropdown')) closeDrop();
+      });
+    }
 
     window.addEventListener('scroll', function () {
       nav.classList.toggle('scrolled', window.scrollY > 40);
